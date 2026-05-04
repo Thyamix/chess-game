@@ -10,16 +10,16 @@ import (
 	chess "github.com/thyamix/go-chess"
 )
 
-const GRIDSIZE int = 30
+const GRIDSIZE int = 33
 
 type Game struct {
-	board    chess.Board
+	board    chess.Game
 	selected *[2]int
 }
 
 func NewGame() *Game {
 	return &Game{
-		board: chess.NewBoard(),
+		board: chess.NewGame(chess.NewBoard()),
 	}
 }
 
@@ -48,18 +48,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if err != nil || piece.Type() == chess.EMPTY {
 				continue
 			}
-			if g.selected != nil && g.selected[0] == x && g.selected[1] == y {
-				xpos, ypos := ebiten.CursorPosition()
-
-				DrawPiece(screen, xpos, ypos, false, piece)
-			} else {
-				DrawPiece(screen, x, y, true, piece)
+			if !(g.selected != nil && g.selected[0] == x && g.selected[1] == y) {
+				DrawPiece(screen, x, y, false, piece)
 			}
 		}
 	}
+	if g.selected != nil {
+		piece, _ := g.board.GetPiece(g.selected[0], g.selected[1])
+		xpos, ypos := ebiten.CursorPosition()
+		DrawPiece(screen, xpos, ypos, true, piece)
+	}
 }
 
-func DrawPiece(screen *ebiten.Image, x int, y int, onGrid bool, piece chess.Piece) {
+func DrawPiece(screen *ebiten.Image, x int, y int, selected bool, piece chess.Piece) {
 	var img *ebiten.Image
 	switch piece.Type() {
 	case chess.PAWN:
@@ -100,10 +101,11 @@ func DrawPiece(screen *ebiten.Image, x int, y int, onGrid bool, piece chess.Piec
 		}
 	}
 	geo := ebiten.GeoM{}
-	if onGrid {
-		geo.Translate(float64((7*GRIDSIZE)-(GRIDSIZE*x)+GRIDSIZE/4), float64((7*GRIDSIZE)-(GRIDSIZE*y)+GRIDSIZE/4))
-	} else {
+	geo.Scale(2, 2)
+	if selected {
 		geo.Translate(float64(x-GRIDSIZE/4), float64(y-GRIDSIZE/4))
+	} else {
+		geo.Translate(float64((7*GRIDSIZE)-(GRIDSIZE*x)+2), float64((7*GRIDSIZE)-(GRIDSIZE*y)))
 	}
 	screen.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geo})
 }
