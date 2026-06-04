@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
-	github.com/thyamix/go-chess v0.0.0-20260503110319-0964cb6e56d5
+	github.com/thyamix/go-chess v0.0.0-20260504092013-ebff79f7302a
 )
 
 require (
